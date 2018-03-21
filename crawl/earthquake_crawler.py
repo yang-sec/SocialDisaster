@@ -64,28 +64,5 @@ def returnJson(source):
 		raise
 # end returnJson
 
-#Not Tested yet.
-def emailNotify(errorMsg, url):
-	if url:
-		sender = 'archturiasystems@gmail.com'
-		receivers = ['claude.mercury@gmail.com']
-
-		message = """From: From Person <from@fromdomain.com>
-		To: To Person <to@todomain.com>
-		Subject: SMTP e-mail test
-		Error: """,errorMsg, """;
-		getUSGS_json e-mail message.
-		""", url,""" Not available."""
-
-		try:
-		   smtpObj = smtplib.SMTP('smtp.gmail.com')
-		   smtpObj.sendmail(sender, receivers, message)
-
-		   print "Successfully sent email"
-		except Exception, e:
-		   print "Error: unable to send email ",e
-	else:
-		print url, " not set in emailNotify()"
-#end emailNotify
 
 getUSGS_json(7)
