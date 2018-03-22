@@ -6,7 +6,7 @@ This project provides an interesting method for earthquake damage assessment.
 ```
 python3 processRawJSON.py
 ```
-It will parse the ras JSON file and generate a numpy array for data analysis and NLP tasks.
+It will parse the raw JSON file and generate a numpy array for data analysis and NLP tasks.
 
 
 ## Earthquake crawler
