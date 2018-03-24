@@ -4,6 +4,7 @@ import re
 import time
 import datetime
 import got
+from merge_earthquakes import merge_earthquake
 
 
 def connect_to_postgresql():
@@ -95,9 +96,12 @@ def read_earthquake_json(json_file, output_file):
     find_city_pattern = re.compile(r'.* of (.*)')
 
     # 1. First load from json
-    data = json.load(open(json_file))
+    earthquake_merger = merge_earthquake(time_threshold_seconds=86400, distance_threshold_km=20)
+    data = earthquake_merger.merge_file(json_file)
+    #data = json.load(open(json_file))
     features = data['features']
     earthquake_list = []
+    iteration = 0
     for feature in features:
         properties = feature['properties']
 
@@ -108,7 +112,7 @@ def read_earthquake_json(json_file, output_file):
             actual_city = matches.group(1)
             print("Place:" + actual_city + ', magnitude= ' + str(properties['mag']) + ", time=" + str(
                 properties['time']))
-            tweets = get_tweets(actual_city, properties['time'], max_tweets=10)
+            tweets = get_tweets(actual_city, properties['time'], max_tweets=1000)
             #if len(tweets) > 0:
                 #print("\tTweets: > ", tweets[0].id, tweets[0].username, tweets[0].permalink, tweets[0].date, tweets[0].text,
                 #  tweets[0].retweets, tweets[0].favorites, tweets[0].mentions, tweets[0].hashtags, tweets[0].geo)
@@ -140,10 +144,16 @@ def read_earthquake_json(json_file, output_file):
             
             
             if len(tweets) > 0:
+                earthquake['tweets'] = tweets_list
                 earthquake_list.append(earthquake)
+                with open(output_file, 'w') as out:
+                    json.dump(earthquake_list, out)
+            
+            iteration = iteration + 1
+                    
     if len(earthquake_list) > 0:
         with open(output_file, 'w') as out:
-            json.dump(tweets_list, out)
+            json.dump(earthquake_list, out)
     # Json: {features:[{properties:{mag:4.5,place:"2km WSW of Diablo, CA",time:"1519186937910"}}]}
 
 
@@ -168,7 +178,7 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
 # connect_to_postgresql()
 # create_table()
 
-file_name = "earthquakes_world_2018_mag>=5_count=337.json"
+file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
 file_without_ext = file_name.split(".")
 
 output_file = "./Tweets/Tweets_" + file_without_ext[0] + ".json"
