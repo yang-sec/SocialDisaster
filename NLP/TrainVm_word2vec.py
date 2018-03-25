@@ -41,5 +41,6 @@ print(tokenSet[0:10])
 
 
 ### Deploy w2v
-model = w2v(tokenSet[0:20], min_count=1, size=10)
+#models = w2v(tokenSet[0:20], min_count=1, size=10)
+model = w2v(tokenSet,min_count=1,size=10)
 print('Vector for \'earthquake\': ', model['earthquake'])
