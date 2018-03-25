@@ -18,3 +18,14 @@ python earthquake_crawler.py
 ```
 There will be a file created in the crawl folder with the earthquake data of the last 7 days (configurable in the python script). 
 
+
+## Use of vectorizer and classifier
+
+Run the vectorizer example with "python NLP/vectorizer_test.py"
+
+Then this will save the vectors in the folder NLP/models/vecs.
+
+After that we can run the classifiers with code similar to "python NLP/classifier_test.py" which will read from the vectorizer files in "NLP/models/vecs".
+
+Sequence thens hould be to run vectorizers first and then classifiers
+
