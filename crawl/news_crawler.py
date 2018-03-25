@@ -83,12 +83,13 @@ class news_crawler:
         earthquake['news'] = news_articles
         num_fails = 0
         for link in links:
-            if 'google' not in link['href']:
+            if 'google' not in link['href'] and 'http' in link['href']:
                 if ' ' in link.get_text():
-                    print "Trying to fetch " 
-                    print link['href']
+                    print "Trying to fetch "
+                    link_href = self.clean_url(link['href'])
+                    print link_href
                     #article = Article(link['href'], keep_article_html = True, request_timeout = 5)
-                    article = Article(link['href'])
+                    article = Article(link_href)
                     try:
 
                         print("Building %s" % (article.title))
@@ -98,11 +99,22 @@ class news_crawler:
                         doc['title'] = article.title
                         doc['url'] = article.url
                         doc['content'] = article.text
-                        print(article.publish_date)
                         #doc['html'] = article.html
+                        
+                        # Check if the article is too old, then do not include
+                        if article.publish_date is not None and len(article.publish_date) >= 19:
+                            article_publish_time_secs = self.convert_to_secs(article.publish_date)
+                            if article_publish_time_secs < (date_of_earthq_secs - (four_days_seconds/2)):
+                                print("Publish date too old : " )
+                                print("\tEarthq at (timestamp secs) " + date_of_earthq_secs)
+                                print("\tPublish date at (timestamp secs) " + article_publish_time_secs)
+                                print(article.publish_date)
+                                continue
+                        
                         news_articles.append(doc)
                         earthquake['news'] = news_articles
-                        exit()
+                        
+                        #exit()
                     except:
                         print("Couldn't download article")
                         num_fails = num_fails + 1
@@ -111,7 +123,23 @@ class news_crawler:
         #print urls
         return earthquake
 
+    def clean_url(self, url):
+        # example
+        # /url?q=http://www.dailymail.co.uk/news/article-5311317/More-secondary-schools-performing-figures-suggest.html&sa=U&ved=0ahUKEwjYqpj5roXaAhUFh1QKHfZlAuoQqQIINygAMAk&usg=AOvVaw3ZASy4cOocgxCsTbM5fK8B
+        if "/url?q=" in url:
+            #print "REPLACING"
+            url = url.replace("/url?q=", "")
+            url_arr = url.split("&sa=")
+            return url_arr[0]
+        return url
+    
+    def convert_to_secs(self, strdate):
+        datet = time.strptime(strdate[0:19], "%Y-%m-%d %H:%M:%S")
+        timestamp_secs = time.mktime(datet)
+        return int(timestamp_secs)
+        
 
+    
 #file_name = "earthquakes_world_2018_mag>=5_count=337.json"
 file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
 file_without_ext = file_name.split(".")
