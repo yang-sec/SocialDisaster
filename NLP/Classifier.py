@@ -97,13 +97,13 @@ class Classifier:
         'vectorizer_pickle_filename':'tfidf', 
         'classifier':ActualClassifierObject} 
         """
-        iters = 10
+        iters = 2
         
         for model in model_list:
             print(('Now testing %s') % (model['name']))
             self.set_classifier(model['classifier'])
             self.set_vectorizer(model['vectorizer_pickle_filename'])
-            results = self.bootstrap(iters=iters, pct=0.8)
+            results = self.bootstrap(iters=iters, pct=0.5)
             model['results'] = results
         
             print("Results for model %s " %(model['name']))

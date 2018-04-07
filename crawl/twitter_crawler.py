@@ -121,6 +121,7 @@ def read_earthquake_json(json_file, output_file):
             earthquake['actual_city'] = actual_city
             earthquake['occurence_timestamp'] = properties['time']
             earthquake['occurence_date'] = time.strftime("%d %b %Y", time.gmtime(properties['time']/1000))
+            earthquake['coordinates'] = feature['geometry']['coordinates']
             earthquake['magnitude'] = properties['mag']
             tweets_list = []
             earthquake['tweets'] = tweets_list
@@ -181,7 +182,7 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
 file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
 file_without_ext = file_name.split(".")
 
-output_file = "./Tweets/Tweets_" + file_without_ext[0] + ".json"
-#earthquake_data_json_path = "./UsgsData/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
-earthquake_data_json_path = "./UsgsData/" +file_name
+output_file = "../Tweets/Tweets_" + file_without_ext[0] + ".json"
+#earthquake_data_json_path = "../UsgsData/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+earthquake_data_json_path = "../UsgsData/" +file_name
 read_earthquake_json(earthquake_data_json_path, output_file)
