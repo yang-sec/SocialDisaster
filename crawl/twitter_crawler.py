@@ -112,12 +112,13 @@ def read_earthquake_json(json_file, output_file):
             actual_city = matches.group(1)
             print("Place:" + actual_city + ', magnitude= ' + str(properties['mag']) + ", time=" + str(
                 properties['time']))
-            tweets = get_tweets(actual_city, properties['time'], max_tweets=1000)
+            tweets = get_tweets(actual_city, properties['time'], max_tweets=100)
             #if len(tweets) > 0:
                 #print("\tTweets: > ", tweets[0].id, tweets[0].username, tweets[0].permalink, tweets[0].date, tweets[0].text,
                 #  tweets[0].retweets, tweets[0].favorites, tweets[0].mentions, tweets[0].hashtags, tweets[0].geo)
 
             earthquake = {}
+            earthquake['id'] = feature['id']
             earthquake['actual_city'] = actual_city
             earthquake['occurence_timestamp'] = properties['time']
             earthquake['occurence_date'] = time.strftime("%d %b %Y", time.gmtime(properties['time']/1000))
@@ -179,7 +180,9 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
 # connect_to_postgresql()
 # create_table()
 
-file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+#file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+file_name = "earthquakes_world_2018_mag>=5_count=337.json"
+
 file_without_ext = file_name.split(".")
 
 output_file = "../Tweets/Tweets_" + file_without_ext[0] + ".json"

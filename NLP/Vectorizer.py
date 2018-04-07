@@ -27,6 +27,7 @@ class Vectorizer:
         ## Preprocess the data into an array which can be processed by w2v
         tokenSet = []
         magLabels = []
+        eqIDs = []
         tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # Keep only alphanumeric characters as tokens
         for idx_e in range(len(data)):
             for idx_n in range(len(data[idx_e]["tweets"])):
@@ -36,6 +37,7 @@ class Vectorizer:
                 tokens = tokenizer.tokenize(text)  # tokenize
                 tokenSet.append(tokens)
                 magLabels.append(data[idx_e]["magnitude"])  # every tokenized tweet has a magnitude label
+                eqIDs.append(data[idx_e]['id'])
 
         # Remove stopwords, numbers, singleton characters, and lemmatize
         stopwords_nltk = nltk.corpus.stopwords.words('english')
@@ -46,24 +48,27 @@ class Vectorizer:
 
         print('Preprocessing Completed. Total earthquakes: ', len(data), '. Total tweets: ', len(tokenSet))
         
-        subsample = len(tokenSet)
+        nSamples = len(tokenSet)
         #subsample = 20
         
         #Here we fit the vectorizer
-        self.vectorizer.fit(tokenSet[0:subsample])
+        self.vectorizer.fit(tokenSet[0:nSamples])
         
         #Now we focus on adding the label:
-        sentences = self.vectorizer.transform(tokenSet[0:subsample])
+        sentences = self.vectorizer.transform(tokenSet[0:nSamples])
         
         sentences_array = sentences.toarray()
-        labels_array = np.array(magLabels[0:subsample])
+        labels_array = np.array(magLabels[0:nSamples])
         labels_array = np.expand_dims(labels_array,axis=1)
+        eqID_array = np.array(eqIDs[0:nSamples])
+        eqID_array = np.expand_dims(eqID_array,axis=1)
         
         # print("labels_array dims")
         # print(labels_array.shape)
         # print("sentence_array dims")
         # print(sentences_array.shape)
         sentences_array = np.append(sentences_array,labels_array,axis=1)
+        sentences_array = np.append(sentences_array,eqID_array,axis=1)
         
         
         # print(sentences_array[0:2])
@@ -71,7 +76,8 @@ class Vectorizer:
         
         df = pd.DataFrame(sentences_array)
         num_cols = df.shape[1]
-        df = df.rename(columns={ df.columns[num_cols-1]: 'y' })
+        df = df.rename(columns={ df.columns[num_cols-2]: 'y' , df.columns[num_cols-1]: 'eqID' })
+        #df = df.rename(columns={ df.columns[num_cols-1]: 'eqID' })
         self.model_df = df
         #print(df)
         

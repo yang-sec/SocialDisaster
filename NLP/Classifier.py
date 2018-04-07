@@ -45,8 +45,10 @@ class Classifier:
         # Turn the training data frame into an appropriate
         # matrix / vector
         y = self.train_df['y']
+        self.eqID = self.train_df['eqID']
         X = self.train_df.copy()
         del X['y']
+        del X['eqID']
 
         # Train the model
         self.classifier.fit(X,y)
@@ -59,6 +61,7 @@ class Classifier:
         # matrix / vector
         X = self.test_df.copy()
         del X['y']
+        del X['eqID']        
 
         # Predict the label of the test examples
         self.ypred = self.classifier.predict(X)
@@ -109,4 +112,30 @@ class Classifier:
             print("Results for model %s " %(model['name']))
             print(results)
             
+    def save_model(self):
+        # Either use the specified models name or pick a
+        # numbered models name that has not been used yet
+        model_dir = self.dir+'/models/classifier'
+        print('Saving models ...')
+
+        object_to_be_saved = self.classifier
+        rows_count = len(self.model_df.index)
         
+
+        
+        if self.name:
+            filename = model_dir + '/' + self.name + '.pickle'
+        else:
+            files = os.listdir(model_dir)
+            already_used = True
+            i = 0
+            while already_used:
+                filename = 'model_'+ str(i) + '.pickle'
+                if filename in files:
+                    i += 1
+                else:
+                    already_used = False
+            filename = model_dir + '/' + filename
+        with open(filename, 'wb') as f:
+            pickle.dump(self.model_df, f, protocol=2)
+            print("Model saved " + filename)
