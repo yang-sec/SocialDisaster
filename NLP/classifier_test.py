@@ -6,8 +6,8 @@ cls = RandomForestRegressor()
 classifier = Classifier()
 models=[
     {
-        'name':"tfidf-randomforest",
-        'vectorizer_pickle_filename': "tfidf",
+        'name':"randomforest_tfidf_2018",
+        'vectorizer_pickle_filename': "tfidf_2018",
         'classifier': cls
     }
 ]

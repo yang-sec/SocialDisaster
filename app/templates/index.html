@@ -51,11 +51,13 @@
 
 <script>
 //TODO: make this a function and abstract it from the view.
+
 var data = $.ajax({
   //url: "static/js/data/usgsEarthquacks_7days.json",
   //url: "static/js/data/earthquakes_world_2018_mag>=5_count=337.json",
   //url: "static/js/data/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
-  url: "static/js/data/Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+  //url: "static/js/data/Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
   dataType:'json',
   type: 'GET',
 }).done(function(data){
@@ -93,7 +95,7 @@ var data = $.ajax({
             "<strong>Magnitude</strong> "+dataParse[i].magnitude+" <br />"+
             "<strong>Depth:</strong> "+dataParse[i].coordinates[2]+"km <br />"+
             "<strong>Number of tweets:</strong> "+dataParse[i].tweets.length+" <br />"+
-            "<strong>Damage assessment:</strong> <button onclick='dmgAssess()'>Compute</button>"
+            "<strong>Damage assessment:</strong> <button onclick='dmgAssess(\"" + dataParse[i].id + "\")'>Compute</button>"
         );
 
         //See: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php for data dictionary.
@@ -138,13 +140,37 @@ var data = $.ajax({
     }).addTo(map);
 });
 
-function dmgAssess() {
+function dmgAssess(earthquake_id) {
     var canvas = document.getElementById("dmgAssessmentCanvas");
     var ctx=canvas.getContext("2d");
-    ctx.font="30px Comic Sans MS";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font="9px Comic Sans MS";
     ctx.fillStyle = "red";
     ctx.textAlign = "center";
-    ctx.fillText("Hello World", canvas.width/2, canvas.height/2);
+    var line_h = 15;
+    var x = canvas.width/2;
+    var y = 10;
+    //ctx.fillText("Hello World " + earthquake_id + " " + data + " " + dataParse, canvas.width/2, canvas.height/2);
+    var earthquake_data = data.responseJSON
+    var was_found = false;
+    for (i=0; i< earthquake_data.length; i++){
+        if(earthquake_data[i].id === earthquake_id){
+
+            var tweets = earthquake_data[i].tweets;
+            var tweets_str = " Earthquake magnitude : " + earthquake_data[i].magnitude + ", predicted magnitude (avg): " + earthquake_data[i].predicted_magnitude_average + " ." ;
+            ctx.fillText(tweets_str, x, y );
+            for(j = 0 ; j < tweets.length ; j++){
+                tweets_str = 'Tweet id ' + tweets[j].id + ', predicted score: ' + tweets[j].predicted_magnitude  ;
+                ctx.fillText(tweets_str, x, y + line_h * (j + 1));
+            }
+
+
+            was_found = true;
+        }
+    }
+    if(!was_found){
+        ctx.fillText("Hello World " + earthquake_id + " " + earthquake_data + " " + earthquake_data.length, canvas.width/2, canvas.height/2);
+    }
 }
 
 function toDateTime(secs) {

@@ -3,6 +3,7 @@ import pickle
 import random
 import pandas as pd
 import numpy as np
+import pickle
 
 class Classifier:
     
@@ -20,6 +21,7 @@ class Classifier:
       
     def set_classifier(self, classifier):
         self.classifier = classifier
+
     def prepare_test_train_set(self, pct, random_seed=13):
 
         if random_seed:
@@ -49,6 +51,7 @@ class Classifier:
         X = self.train_df.copy()
         del X['y']
         del X['eqID']
+        del X['tweetID']
 
         # Train the model
         self.classifier.fit(X,y)
@@ -61,7 +64,8 @@ class Classifier:
         # matrix / vector
         X = self.test_df.copy()
         del X['y']
-        del X['eqID']        
+        del X['eqID']
+        del X['tweetID']
 
         # Predict the label of the test examples
         self.ypred = self.classifier.predict(X)
@@ -69,6 +73,7 @@ class Classifier:
     def evaluate_results(self):
         # Check the predictions against observed values
         y = np.array(self.test_df['y'])
+        y = y.astype(float)
         ypred = self.ypred
         # print(type(y))
         # print(type(ypred))
@@ -106,11 +111,14 @@ class Classifier:
             print(('Now testing %s') % (model['name']))
             self.set_classifier(model['classifier'])
             self.set_vectorizer(model['vectorizer_pickle_filename'])
+            self.name = model['name']
             results = self.bootstrap(iters=iters, pct=0.5)
             model['results'] = results
         
             print("Results for model %s " %(model['name']))
             print(results)
+
+        self.save_model()
             
     def save_model(self):
         # Either use the specified models name or pick a
@@ -119,7 +127,6 @@ class Classifier:
         print('Saving models ...')
 
         object_to_be_saved = self.classifier
-        rows_count = len(self.model_df.index)
         
 
         
@@ -137,5 +144,5 @@ class Classifier:
                     already_used = False
             filename = model_dir + '/' + filename
         with open(filename, 'wb') as f:
-            pickle.dump(self.model_df, f, protocol=2)
+            pickle.dump(self.classifier, f, protocol=2)
             print("Model saved " + filename)

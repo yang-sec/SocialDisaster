@@ -28,6 +28,7 @@ class Vectorizer:
         tokenSet = []
         magLabels = []
         eqIDs = []
+        tweetIDs = []
         tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # Keep only alphanumeric characters as tokens
         for idx_e in range(len(data)):
             for idx_n in range(len(data[idx_e]["tweets"])):
@@ -38,6 +39,7 @@ class Vectorizer:
                 tokenSet.append(tokens)
                 magLabels.append(data[idx_e]["magnitude"])  # every tokenized tweet has a magnitude label
                 eqIDs.append(data[idx_e]['id'])
+                tweetIDs.append(data[idx_e]['tweets'][idx_n]['id'])
 
         # Remove stopwords, numbers, singleton characters, and lemmatize
         stopwords_nltk = nltk.corpus.stopwords.words('english')
@@ -62,6 +64,8 @@ class Vectorizer:
         labels_array = np.expand_dims(labels_array,axis=1)
         eqID_array = np.array(eqIDs[0:nSamples])
         eqID_array = np.expand_dims(eqID_array,axis=1)
+        tweetIDs_array = np.array(tweetIDs[0:nSamples])
+        tweetIDs_array = np.expand_dims(tweetIDs_array, axis=1)
         
         # print("labels_array dims")
         # print(labels_array.shape)
@@ -69,6 +73,8 @@ class Vectorizer:
         # print(sentences_array.shape)
         sentences_array = np.append(sentences_array,labels_array,axis=1)
         sentences_array = np.append(sentences_array,eqID_array,axis=1)
+        sentences_array = np.append(sentences_array, tweetIDs_array, axis=1)
+
         
         
         # print(sentences_array[0:2])
@@ -76,7 +82,8 @@ class Vectorizer:
         
         df = pd.DataFrame(sentences_array)
         num_cols = df.shape[1]
-        df = df.rename(columns={ df.columns[num_cols-2]: 'y' , df.columns[num_cols-1]: 'eqID' })
+        df = df.rename(columns={ df.columns[num_cols-3]: 'y' , df.columns[num_cols-2]: 'eqID' , df.columns[num_cols-1]: 'tweetID'})
+        #df = df.rename(columns={df.columns[num_cols-2]: 'y'})
         #df = df.rename(columns={ df.columns[num_cols-1]: 'eqID' })
         self.model_df = df
         #print(df)
