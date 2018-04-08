@@ -11,7 +11,9 @@
     <script
        src="http://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js">
     </script>
-
+    <script src="static/js/wordcloud2.js/src/wordcloud2.js"></script> 
+    <script src="static/js/histogramChart.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
 
 
 	<style>
@@ -27,21 +29,41 @@
             box-sizing: border-box;
         }
 
-        /* Create two equal columns that floats next to each other */
         .column {
             float: left;
             width: 50%;
             padding: 20px;
         }
 
-        /* Clear floats after the columns */
+        .column2 {
+            float: left;
+            width: 70%;
+            padding: 0px;
+        }
+
+        .column23 {
+            float: left;
+            width: 30%;
+            padding: 0px;
+        }
+
         .row:after {
             content: "";
             display: table;
             clear: both;
         }
+
+        .row2:after {
+            content: "";
+            display: table;
+            clear: both;
+            height: 500px;
+        }
+
+
 	</style>
 </head>
+
 <body>
 
     <h1>SocialDisaster: Earthquake Damage Assessment</h1>
@@ -141,36 +163,53 @@ var data = $.ajax({
 });
 
 function dmgAssess(earthquake_id) {
-    var canvas = document.getElementById("dmgAssessmentCanvas");
-    var ctx=canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font="9px Comic Sans MS";
-    ctx.fillStyle = "red";
-    ctx.textAlign = "center";
+    var canvas1 = document.getElementById("dmgAssessmentCanvas");
+    var canvas2 = document.getElementById("wordCloudCanvas");
+    var ctx1=canvas1.getContext("2d");
+    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    ctx1.font="9px Comic Sans MS";
+    ctx1.fillStyle = "red";
+    ctx1.textAlign = "center";
+    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+
     var line_h = 15;
-    var x = canvas.width/2;
+    var x = canvas1.width/2;
     var y = 10;
-    //ctx.fillText("Hello World " + earthquake_id + " " + data + " " + dataParse, canvas.width/2, canvas.height/2);
+    var tweetsDist = []
+    //ctx1.fillText("Hello World " + earthquake_id + " " + data + " " + dataParse, canvas1.width/2, canvas1.height/2);
     var earthquake_data = data.responseJSON
     var was_found = false;
+    
     for (i=0; i< earthquake_data.length; i++){
         if(earthquake_data[i].id === earthquake_id){
 
             var tweets = earthquake_data[i].tweets;
-            var tweets_str = " Earthquake magnitude : " + earthquake_data[i].magnitude + ", predicted magnitude (avg): " + earthquake_data[i].predicted_magnitude_average + " ." ;
-            ctx.fillText(tweets_str, x, y );
+            var tweets_str = " Predicted magnitude (avg): " + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100 + " ." ;
+            ctx1.fillText(tweets_str, x, y );
+            y += line_h;
+            var tweets_str = " Standard deviation: " + Math.round(earthquake_data[i].predicted_magnitude_stddev * 10000) / 10000 + " ." ;   
+            ctx1.fillText(tweets_str, x, y );
+
             for(j = 0 ; j < tweets.length ; j++){
-                tweets_str = 'Tweet id ' + tweets[j].id + ', predicted score: ' + tweets[j].predicted_magnitude  ;
-                ctx.fillText(tweets_str, x, y + line_h * (j + 1));
+                var predScore = tweets[j].predicted_magnitude;
+                //tweets_str = 'Tweet id ' + tweets[j].id + ', predicted score: ' + predScore  ;
+                //ctx1.fillText(tweets_str, x, y + line_h * (j + 1));
+                tweetsDist.push(Math.round(predScore*10)/10);
             }
-
-
             was_found = true;
         }
     }
     if(!was_found){
-        ctx.fillText("Hello World " + earthquake_id + " " + earthquake_data + " " + earthquake_data.length, canvas.width/2, canvas.height/2);
-    }
+        ctx1.fillText("Hello World " + earthquake_id + " " + earthquake_data + " " + earthquake_data.length, canvas1.width/2, canvas1.height/2);
+    }//*/
+
+    // Draw score distribution
+    document.getElementById("histogram").innerHTML = ""
+    d3.select("#histogram").datum(tweetsDist).call(histogramChart().bins(d3.scale.linear().domain([4,8]).ticks(40)).tickFormat(d3.format(".1f")));
+
+    // Generate word cloud
+    var list = [['Alice', 100], ['Bob', 50], ['Cindy', 40], ['Doug', 20]];
+    WordCloud(canvas2, { list: list } );
 }
 
 function toDateTime(secs) {
@@ -178,6 +217,18 @@ function toDateTime(secs) {
     t.setSeconds(secs);
     return t;
 }
+
+function irwinHallDistribution(n, m) {
+  var distribution = [];
+  for (var i = 0; i < n; i++) {
+    for (var s = 0, j = 0; j < m; j++) {
+      s += Math.random();
+    }
+    distribution.push(s / m);
+  }
+  return distribution;
+}
+
 </script>
 
 <h2>Search Earthquakes (Under development)</h2>
@@ -190,18 +241,28 @@ Year: <input type="text" name="Year" value="2018">
 
 </div>
 
+
 <div class="column">
 
-<canvas id="dmgAssessmentCanvas" width="500" height="500"
+<div class="column2">
+<canvas id="wordCloudCanvas" width="560" height="400"
 style="border:1px solid #d3d3d3;">
 Your browser does not support the canvas element.
 </canvas>
-
-
-<p id="demo"></p>
-
 </div>
 
+<div class="column3">
+<canvas id="dmgAssessmentCanvas" width="240" height="100"
+style="border:1px solid #d3d3d3;">
+Your browser does not support the canvas element.
+</canvas>
+</div>
+
+
+<div class="row" id="histogram"></div>
+
+
+</div>
 
 
 </body>
