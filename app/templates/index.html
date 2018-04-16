@@ -75,11 +75,9 @@
 //TODO: make this a function and abstract it from the view.
 
 var data = $.ajax({
-  //url: "static/js/data/usgsEarthquacks_7days.json",
-  //url: "static/js/data/earthquakes_world_2018_mag>=5_count=337.json",
-  //url: "static/js/data/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
-  //url: "static/js/data/Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
-  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
+  //url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
+  url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+
   dataType:'json',
   type: 'GET',
 }).done(function(data){
@@ -166,15 +164,15 @@ function dmgAssess(earthquake_id) {
     var canvas1 = document.getElementById("dmgAssessmentCanvas");
     var canvas2 = document.getElementById("wordCloudCanvas");
     var ctx1=canvas1.getContext("2d");
-    ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-    ctx1.font="9px Comic Sans MS";
+    //ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    ctx1.font="14px Comic Sans MS";
     ctx1.fillStyle = "red";
     ctx1.textAlign = "center";
     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
 
-    var line_h = 15;
+    var line_h = 20;
     var x = canvas1.width/2;
-    var y = 10;
+    var y = 16;
     var tweetsDist = []
     //ctx1.fillText("Hello World " + earthquake_id + " " + data + " " + dataParse, canvas1.width/2, canvas1.height/2);
     var earthquake_data = data.responseJSON
@@ -184,10 +182,10 @@ function dmgAssess(earthquake_id) {
         if(earthquake_data[i].id === earthquake_id){
 
             var tweets = earthquake_data[i].tweets;
-            var tweets_str = " Predicted magnitude (avg): " + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100 + " ." ;
+            var tweets_str = " Predicted magnitude (avg): " + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100 + "." ;
             ctx1.fillText(tweets_str, x, y );
             y += line_h;
-            var tweets_str = " Standard deviation: " + Math.round(earthquake_data[i].predicted_magnitude_stddev * 10000) / 10000 + " ." ;   
+            var tweets_str = " Standard deviation: " + Math.round(earthquake_data[i].predicted_magnitude_stddev * 10000) / 10000 + "." ;   
             ctx1.fillText(tweets_str, x, y );
 
             for(j = 0 ; j < tweets.length ; j++){
@@ -205,10 +203,10 @@ function dmgAssess(earthquake_id) {
 
     // Draw score distribution
     document.getElementById("histogram").innerHTML = ""
-    d3.select("#histogram").datum(tweetsDist).call(histogramChart().bins(d3.scale.linear().domain([4,8]).ticks(40)).tickFormat(d3.format(".1f")));
+    d3.select("#histogram").datum(tweetsDist).call(histogramChart().bins(d3.scale.linear().domain([4,7.1]).ticks(31)).tickFormat(d3.format(".1f")));
 
     // Generate word cloud
-    var list = [['Alice', 100], ['Bob', 50], ['Cindy', 40], ['Doug', 20]];
+    var list = [['Alice', 100], ['Bob', 70], ['Cindy', 50], ['Doug', 30], ['Eve', 30], ['Frank', 20]];
     WordCloud(canvas2, { list: list } );
 }
 
@@ -252,7 +250,7 @@ Your browser does not support the canvas element.
 </div>
 
 <div class="column3">
-<canvas id="dmgAssessmentCanvas" width="240" height="100"
+<canvas id="dmgAssessmentCanvas" width="260" height="100"
 style="border:1px solid #d3d3d3;">
 Your browser does not support the canvas element.
 </canvas>

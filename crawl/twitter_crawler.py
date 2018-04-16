@@ -96,8 +96,8 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
 # connect_to_postgresql()
 # create_table()
 
-#file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
-file_name = "earthquakes_world_2018_mag>=5_count=337.json"
+file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+#file_name = "earthquakes_world_2018_mag>=5_count=337.json"
 
 file_without_ext = file_name.split(".")
 

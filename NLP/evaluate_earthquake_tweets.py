@@ -15,13 +15,20 @@ import numpy as np
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
+'''
 raw_crawl_file = "Tweets_earthquakes_world_2018_mag>=5_count=337.json"
-earthquake_tweets_file = dir + "/../Tweets/" + raw_crawl_file
 earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_2018.pickle"
 earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_2018.pickle"
+'''
+raw_crawl_file = "Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_2008-2018.pickle"
+earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_2008-2018.pickle"
+
+
 earthquake_tweets_output_file = dir + "/../app/static/js/data/Evaluated_" + raw_crawl_file
 
 # 1 reads earthquake tweets
+earthquake_tweets_file = dir + "/../Tweets/" + raw_crawl_file
 earthquake_tweets_crawl_file = open(earthquake_tweets_file)
 earthquakes_tweets_raw = json.load(earthquake_tweets_crawl_file)
 earthquake_tweets_crawl_file.close()
@@ -46,16 +53,20 @@ for earthquake_tweets in earthquakes_tweets_raw:
     predicted_tweet_scores = []
     # below we filter down the vectors to only the earthquake related tweets vectors
     filtered_dataframe = earthquake_tweets_dataframe.loc[earthquake_tweets_dataframe['eqID'] == earthquake_tweets['id']]
+    b = 0
     for tweet in earthquake_tweets['tweets']:
+        b = b + 1
+        print(b)
         # below we fetch the tweet vector
         tweet_vector = filtered_dataframe.loc[filtered_dataframe['tweetID'] == tweet['id']]
         del tweet_vector['y']
         del tweet_vector['eqID']
         del tweet_vector['tweetID']
+        #print(tweet_vector)
         predicted_tweet_score = classifier.predict(tweet_vector)
         #print(predicted_tweet_score)
-        tweet['predicted_magnitude'] = float(predicted_tweet_score)
-        predicted_tweet_scores.append(predicted_tweet_score)
+        tweet['predicted_magnitude'] = float(predicted_tweet_score[0])
+        predicted_tweet_scores.append(predicted_tweet_score[0])
     earthquake_tweets['predicted_magnitude_average'] = np.mean(np.array(predicted_tweet_scores))
     #print(predicted_tweet_scores)
     #print(np.array(predicted_tweet_scores))

@@ -112,7 +112,7 @@ class Classifier:
             self.set_classifier(model['classifier'])
             self.set_vectorizer(model['vectorizer_pickle_filename'])
             self.name = model['name']
-            results = self.bootstrap(iters=iters, pct=0.5)
+            results = self.bootstrap(iters=iters, pct=0.8)
             model['results'] = results
         
             print("Results for model %s " %(model['name']))
