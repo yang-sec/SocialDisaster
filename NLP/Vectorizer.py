@@ -12,7 +12,7 @@ class Vectorizer:
         self.dir = os.path.dirname(os.path.realpath(__file__))
         self.name = name 
         
-        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.01, max_df=0.95)
+        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.005, max_df=0.995)
         # w2v = W2V
         self.vectorizers = {
             'tfidf': tfidf
@@ -60,6 +60,7 @@ class Vectorizer:
         #Now we focus on adding the label:
         sentences = self.vectorizer.transform(tokenSet[0:nSamples])
 
+        print('Vocabulary: ')
         print(self.vectorizer.vectorizer.vocabulary_)
         
         sentences_array = sentences.toarray()
@@ -71,7 +72,7 @@ class Vectorizer:
         eqID_array = np.expand_dims(eqID_array,axis=1)
         tweetIDs_array = np.array(tweetIDs[0:nSamples])
         tweetIDs_array = np.expand_dims(tweetIDs_array, axis=1)
-        
+
         # print("labels_array dims")
         # print(labels_array.shape)
         # print("sentence_array dims")

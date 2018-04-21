@@ -17,13 +17,13 @@ dir = os.path.dirname(os.path.realpath(__file__))
 
 
 raw_crawl_file = "Tweets_earthquakes_world_2018_mag>=5_count=337.json"
-earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_2018.pickle"
-earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_2018.pickle"
-'''
-raw_crawl_file = "Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
-earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_2008-2018.pickle"
-earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_2008-2018.pickle"
-'''
+earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_world_2018.pickle"
+earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_world_2018.pickle"
+
+# raw_crawl_file = "Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+# earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_US_2008-2018.pickle"
+# earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_US_2008-2018.pickle"
+
 
 earthquake_tweets_output_file = dir + "/../app/static/js/data/Evaluated_" + raw_crawl_file
 
@@ -80,6 +80,10 @@ for earthquake_tweets in earthquakes_tweets_raw:
         tweet_vector_np = tweet_vector.as_matrix()
         tweet_vector_np = tweet_vector_np.reshape((-1,))
         tweet_vector_np = tweet_vector_np.astype(np.float)
+        
+        # print(len(tweet_vector_np),' ',len(earthquake_tweets_vocabulary_inv))
+        # if len(tweet_vector_np) is not len(earthquake_tweets_vocabulary_inv):
+        #     continue
         if condense_vocab is None:
             condense_vocab = tweet_vector_np
         else:
@@ -87,6 +91,7 @@ for earthquake_tweets in earthquakes_tweets_raw:
         # print(tweet_vector_np)
 
         # exit()
+    # print(len(condense_vocab))
 
     earthquake_tweets['predicted_magnitude_average'] = np.mean(np.array(predicted_tweet_scores))
     #print(predicted_tweet_scores)
@@ -96,8 +101,12 @@ for earthquake_tweets in earthquakes_tweets_raw:
     earthquake_tweets['predicted_magnitude_stddev'] = float(np.std(np.array(predicted_tweet_scores)))
 
     condense_vocab_list = []
+    # print(condense_vocab,' ',np.max(condense_vocab))
     condense_vocab = condense_vocab * 100 / np.max(condense_vocab)
-    for i in range(0,len(condense_vocab)):
+    
+    for i in range(len(condense_vocab)):
+        # print(i)
+        # print(condense_vocab[i], ' ', earthquake_tweets_vocabulary_inv[i])
         condense_vocab_list.append((condense_vocab[i]  * -1, earthquake_tweets_vocabulary_inv[i]))
     condense_vocab_list.sort()
     master_vocab_sorted = [[element[1], element[0] * -1] for element in condense_vocab_list if element[0] *-1 > 0.0]
