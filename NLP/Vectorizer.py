@@ -12,7 +12,7 @@ class Vectorizer:
         self.dir = os.path.dirname(os.path.realpath(__file__))
         self.name = name 
         
-        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.05, max_df=0.95)
+        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.01, max_df=0.95)
         # w2v = W2V
         self.vectorizers = {
             'tfidf': tfidf
@@ -51,6 +51,7 @@ class Vectorizer:
         print('Preprocessing Completed. Total earthquakes: ', len(data), '. Total tweets: ', len(tokenSet))
         
         nSamples = len(tokenSet)
+
         #subsample = 20
         
         #Here we fit the vectorizer
@@ -58,8 +59,12 @@ class Vectorizer:
         
         #Now we focus on adding the label:
         sentences = self.vectorizer.transform(tokenSet[0:nSamples])
+
+        print(self.vectorizer.vectorizer.vocabulary_)
         
         sentences_array = sentences.toarray()
+        print(sentences_array.size,' ',sentences_array.shape)
+
         labels_array = np.array(magLabels[0:nSamples])
         labels_array = np.expand_dims(labels_array,axis=1)
         eqID_array = np.array(eqIDs[0:nSamples])
@@ -114,5 +119,7 @@ class Vectorizer:
                     already_used = False
             filename = model_dir + '/' + filename
         with open(filename, 'wb') as f:
-            pickle.dump(self.model_df, f, protocol=2)
+
+            vectorized_model = (self.model_df, self.vectorizer.vectorizer.vocabulary_)
+            pickle.dump(vectorized_model, f, protocol=2)
             print("Model saved " + filename)

@@ -75,8 +75,8 @@
 //TODO: make this a function and abstract it from the view.
 
 var data = $.ajax({
-  //url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
-  url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
+  // url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
 
   dataType:'json',
   type: 'GET',
@@ -178,9 +178,11 @@ function dmgAssess(earthquake_id) {
     var earthquake_data = data.responseJSON
     var was_found = false;
     
+    var eq_idx = 0;
+
     for (i=0; i< earthquake_data.length; i++){
         if(earthquake_data[i].id === earthquake_id){
-
+            eq_idx = i;
             var tweets = earthquake_data[i].tweets;
             var tweets_str = " Predicted magnitude (avg): " + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100 + "." ;
             ctx1.fillText(tweets_str, x, y );
@@ -206,7 +208,7 @@ function dmgAssess(earthquake_id) {
     d3.select("#histogram").datum(tweetsDist).call(histogramChart().bins(d3.scale.linear().domain([4,7.1]).ticks(31)).tickFormat(d3.format(".1f")));
 
     // Generate word cloud
-    var list = [['Alice', 100], ['Bob', 70], ['Cindy', 50], ['Doug', 30], ['Eve', 30], ['Frank', 20]];
+    var list = earthquake_data[eq_idx].master_vocab;
     WordCloud(canvas2, { list: list } );
 }
 

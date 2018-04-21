@@ -16,7 +16,8 @@ class Classifier:
         vec_file = self.dir + '/models/vecs/' + vectorizer + '.pickle'
         if os.path.isfile(vec_file):
             with open(vec_file, 'rb') as f:
-                self.df = pickle.load(f)
+                vectorized_model = pickle.load(f)
+                self.df = vectorized_model[0]
         
       
     def set_classifier(self, classifier):
@@ -52,6 +53,9 @@ class Classifier:
         del X['y']
         del X['eqID']
         del X['tweetID']
+
+        print(X.shape)
+        # exit()
 
         # Train the model
         self.classifier.fit(X,y)
