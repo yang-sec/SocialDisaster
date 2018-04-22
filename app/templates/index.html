@@ -74,23 +74,52 @@
 <script>
 //TODO: make this a function and abstract it from the view.
 
-var data = $.ajax({
-  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
-  // url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+var earthquakes = null;
+var dataParse = null;
+var map = null;
 
-  dataType:'json',
-  type: 'GET',
-}).done(function(data){
-    var earthquakes = new L.FeatureGroup();
-    //var dataParse = data.features;
-    var dataParse = data;
+filterDate = function filterDate_(){
+
+    //Get the dates and timestamps:
+    var month = document.getElementById("month").value - 1;
+    var year = document.getElementById("year").value;
+    var firstDay = new Date(year, month, 1);
+    var firstDayTs = firstDay.getTime();
+    var lastDay = new Date(year, month + 1, 0);
+    var lastDayTs = lastDay.getTime();
+    //alert("DEBUG: lastDayTS: " + lastDayTs);
+    
+    //Search in the earthquake FeatureGroup:
+    //map-eachlayer: leafletjs.com
+    earthquakes.eachLayer(function(layer){
+        layer.remove();
+    });
+    
+    //Remove heat layer
+    map.eachLayer(function(layer){
+        if(layer.hasOwnProperty('_heat')){
+            layer.remove();
+        }
+        
+    });
+    
     var quakePoints = [];
-    var markerColor = "green";
+    var filterOn = 1;
+    createLayers(earthquakes, quakePoints, filterOn, firstDayTs, lastDayTs);
+    
+    //Add heat layer again
+    var heat = L.heatLayer(quakePoints,{
+        radius: 20,
+        blur: 15,
+        maxZoom: 10
+    }).addTo(map);
+}
 
+function createLayers(featureGroup, quakePoints, filterOn, beginTs, endTs){
     for (i=0; i< dataParse.length; i++){
-        console.log(dataParse[i]); //View the data
+        //console.log(dataParse[i]); //View the data
 
-
+        
         if(dataParse[i].magnitude < 5){
             markerColor = "green";
         }else if(dataParse[i].magnitude >= 5 & dataParse[i].magnitude < 6){
@@ -119,14 +148,41 @@ var data = $.ajax({
         );
 
         //See: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php for data dictionary.
-        earthquakes.addLayer(marker);
+        if(filterOn){
+            var earthquakeTs = dataParse[i].occurence_timestamp;
+            if(earthquakeTs >= beginTs && earthquakeTs <= endTs){
+                featureGroup.addLayer(marker);
+                quakePoints.push([dataParse[i].coordinates[1], dataParse[i].coordinates[0], dataParse[i].magnitude]);
+            }
+        }else{
+            featureGroup.addLayer(marker);
+            quakePoints.push([dataParse[i].coordinates[1], dataParse[i].coordinates[0], dataParse[i].magnitude]);
+        }
+        
+        
 
         /*
-        quakePoints.push([dataParse[i].geometry.coordinates[1],
-                dataParse[i].geometry.coordinates[0], dataParse[i].properties.mag]);//*/
-        quakePoints.push([dataParse[i].coordinates[1], dataParse[i].coordinates[0], dataParse[i].magnitude]);//*/
+        quakePoints.push([dataParse[i].geometry.coordinates[1],dataParse[i].geometry.coordinates[0], dataParse[i].properties.mag]);
+        */
 
     }
+}
+
+var data = $.ajax({
+  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
+  // url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+
+  dataType:'json',
+  type: 'GET',
+}).done(function(data){
+    earthquakes = new L.FeatureGroup();
+    //var dataParse = data.features;
+    dataParse = data;
+    var quakePoints = [];
+    var markerColor = "green";
+
+    var filterOn = 0;
+    createLayers(earthquakes, quakePoints, filterOn, null, null);
 
     var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
             '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
@@ -136,7 +192,7 @@ var data = $.ajax({
     var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
         streets  = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
 
-    var map = L.map('map', {
+    map = L.map('map', {
         center: [39.73, -104.99],
         zoom: 3,
         layers: [grayscale, earthquakes]
@@ -151,6 +207,7 @@ var data = $.ajax({
         "Earthquakes": earthquakes
     };
 
+    
     L.control.layers(baseLayers, overlays).addTo(map);
 
     var heat = L.heatLayer(quakePoints,{
@@ -233,10 +290,10 @@ function irwinHallDistribution(n, m) {
 
 <h2>Search Earthquakes (Under development)</h2>
 
-<form action="compute">
-Month: <input type="text" name="Month" value="1">
-Year: <input type="text" name="Year" value="2018">
-<input type="submit" value="Search">
+<form action="#" method="post" onsubmit="return false;" >
+Month: <input type="number" name="Month" id="month" value="1" min="1" max="12" />
+Year: <input type="number" name="Year" id="year" value="2018" min="2015" max="2018" />
+<input type="submit" value="Search" onclick="filterDate()" />
 </form>
 
 </div>
