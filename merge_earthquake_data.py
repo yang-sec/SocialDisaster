@@ -35,7 +35,7 @@ for file in list_files:
 
 # 3 save dict.
 
-output_file_name = "UsgsData" + os.sep + "merged.json"
+output_file_name = "UsgsData" + os.sep + "earthquakes_merged_2008-2018_count=20470.json"
 with open(output_file_name, 'wb') as outfile:
     json.dump(merged_json, outfile, indent=4, sort_keys=True)
     print "total earthquakes " + str(len(merged_json['features']))

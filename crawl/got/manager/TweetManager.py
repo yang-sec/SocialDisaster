@@ -19,9 +19,16 @@ class TweetManager:
 			tweetCriteria.username = tweetCriteria.username[1:-1]
 
 		active = True
+		count = 0
 
 		while active:
+			count = count + 1
 			json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
+			if json == -1:
+				if count > 10:
+					break
+				continue
+
 			if len(json['items_html'].strip()) == 0:
 				break
 
@@ -130,8 +137,8 @@ class TweetManager:
 			jsonResponse = response.read()
 		except:
 			print "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(urlGetData)
-			sys.exit()
-			return
+			# sys.exit()
+			return -1
 		
 		dataJson = json.loads(jsonResponse)
 		
