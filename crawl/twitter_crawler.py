@@ -24,7 +24,7 @@ def read_earthquake_json(json_file, output_file):
         properties = feature['properties']
 
         # 1.2 Just fetch from Twitter when the place matches expression ".* of .*"
-        # Usually places have names like "200km of Oakton, Virginia" 
+        # Usually places have names like "200km of Oakton, Virginia"
         matches = find_city_pattern.match(properties['place'])
         if matches:
             actual_city = matches.group(1)
@@ -43,7 +43,7 @@ def read_earthquake_json(json_file, output_file):
             earthquake['magnitude'] = properties['mag']
             tweets_list = []
             earthquake['tweets'] = tweets_list
-            
+
             for tweet in tweets:
                 tweet_dic = {}
                 tweet_dic['id'] = tweet.id
@@ -56,19 +56,19 @@ def read_earthquake_json(json_file, output_file):
                 tweet_dic['mentions'] = tweet.mentions
                 tweet_dic['hashtags'] = tweet.hashtags
                 tweet_dic['geo'] = tweet.geo
-                
+
                 # print("\tTweets: > ", tweet.id, tweet.username,tweet.permalink, tweet.date, tweet.text, tweet.retweets,tweet.favorites, tweet.mentions, tweet.hashtags, tweet.geo)
                 tweets_list.append(tweet_dic)
                 #insert_into_db(actual_city, properties['mag'], properties['time'], 'Twitter', tweets)
-            
-            
+
+
             if len(tweets) > 0:
                 earthquake['tweets'] = tweets_list
                 earthquake_list.append(earthquake)
                 with open(output_file, 'w') as out:
                     json.dump(earthquake_list, out)
-            
-        
+
+
     if len(earthquake_list) > 0:
         with open(output_file, 'w') as out:
             json.dump(earthquake_list, out)
@@ -93,17 +93,27 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
     return return_tweets
 
 
-# connect_to_postgresql()
-# create_table()
+import os
 
-# file_name = "earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
-#file_name = "earthquakes_world_2018_mag>=5_count=337.json"
-file_name = "earthquakes_merged_2008-2018_count=20470.json"
+working_dir = os.path.dirname(os.path.realpath(__file__))
+list_files = []
+obj = {}
+for subdir, dirs, files in os.walk(working_dir + "/../UsgsData"):
+    for file in files:
+        #print os.path.join(subdir, file)
+        filepath = subdir + os.sep + file
 
 
-file_without_ext = file_name.split(".")
+        if file.endswith(".json"):
+            #print filepath
+            if not "crawler" in filepath and not "merged" in filepath:
+                list_files.append(filepath)
+                print (filepath)
 
-output_file = "../Tweets/Tweets_" + file_without_ext[0] + ".json"
-#earthquake_data_json_path = "../UsgsData/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
-earthquake_data_json_path = "../UsgsData/" +file_name
-read_earthquake_json(earthquake_data_json_path, output_file)
+
+for file in list_files:
+    out = file.split('/')
+    out = out[-1].split('.')
+    output_file = working_dir + "/../Tweets/Tweets_" + out[0] + ".json"
+    read_earthquake_json(file, output_file)
+    print "Earthquake file: ["+file+"] finished and output file here: ["+  output_file+ "]"
