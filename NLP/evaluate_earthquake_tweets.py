@@ -15,15 +15,19 @@ import numpy as np
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
-
-raw_crawl_file = "Tweets_earthquakes_world_2018_mag>=5_count=337.json"
-earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_world_2018.pickle"
-earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_world_2018.pickle"
+###################################### Choose Data ###########################################
+# raw_crawl_file = "Tweets_earthquakes_world_2018_mag>=5_count=337.json"
+# earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_world_2018.pickle"
+# earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_world_2018.pickle"
 
 # raw_crawl_file = "Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
 # earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_US_2008-2018.pickle"
 # earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_US_2008-2018.pickle"
 
+raw_crawl_file = "Tweets_earthquakes_merged_2008-2018_count=20470.json"
+earthquake_tweets_vectorization_file = dir + "/../NLP/models/vecs/" + "tfidf_world_2008-2018.pickle"
+earthquake_tweets_classifier_file = dir + "/../NLP/models/classifier/" + "randomforest_tfidf_world_2008-2018.pickle"
+##############################################################################################
 
 earthquake_tweets_output_file = dir + "/../app/static/js/data/Evaluated_" + raw_crawl_file
 
@@ -41,6 +45,8 @@ earthquake_tweets_dataframe = vectorized_model[0]
 earthquake_tweets_vocabulary = vectorized_model[1]
 earthquake_tweets_vocabulary_inv = {v: k for k, v, in earthquake_tweets_vocabulary.items()}
 print("Earthquake tweets vectorizations loaded " + earthquake_tweets_vectorization_file)
+vocab_size = len(earthquake_tweets_vocabulary_inv)
+# print(earthquake_tweets_vocabulary_inv)
 
 # 3 reads classifier
 classifier_file = open(earthquake_tweets_classifier_file, 'rb')
@@ -52,6 +58,7 @@ print("evaluating " + str(len(earthquakes_tweets_raw)) + " earthquakes.")
 a = 0
 for earthquake_tweets in earthquakes_tweets_raw:
     a = a + 1
+
     print("evaluating ("+ str(a) + ")th earthquake, with " + str(len(earthquake_tweets['tweets'])) + " tweets.")
     predicted_tweet_scores = []
     # below we filter down the vectors to only the earthquake related tweets vectors
@@ -85,9 +92,9 @@ for earthquake_tweets in earthquakes_tweets_raw:
         # if len(tweet_vector_np) is not len(earthquake_tweets_vocabulary_inv):
         #     continue
         if condense_vocab is None:
-            condense_vocab = tweet_vector_np
+            condense_vocab = tweet_vector_np[range(vocab_size)]
         else:
-            condense_vocab = condense_vocab + tweet_vector_np
+            condense_vocab = condense_vocab + tweet_vector_np[range(vocab_size)]
         # print(tweet_vector_np)
 
         # exit()
@@ -104,6 +111,7 @@ for earthquake_tweets in earthquakes_tweets_raw:
     # print(condense_vocab,' ',np.max(condense_vocab))
     condense_vocab = condense_vocab * 100 / np.max(condense_vocab)
     
+    # print(len(condense_vocab))
     for i in range(len(condense_vocab)):
         # print(i)
         # print(condense_vocab[i], ' ', earthquake_tweets_vocabulary_inv[i])

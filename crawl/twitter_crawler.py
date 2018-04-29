@@ -25,11 +25,14 @@ def read_earthquake_json(json_file, output_file):
 
         # 1.2 Just fetch from Twitter when the place matches expression ".* of .*"
         # Usually places have names like "200km of Oakton, Virginia"
+        if properties['place'] == None:
+            continue
+
         matches = find_city_pattern.match(properties['place'])
         if matches:
             actual_city = matches.group(1)
             # print("Place:" + actual_city + ', magnitude= ' + str(properties['mag']) + ", time=" + str(properties['time']))
-            tweets = get_tweets(actual_city, properties['time'], max_tweets=100)
+            tweets = get_tweets(actual_city, properties['time'], max_tweets=25)
             #if len(tweets) > 0:
                 #print("\tTweets: > ", tweets[0].id, tweets[0].username, tweets[0].permalink, tweets[0].date, tweets[0].text,
                 #  tweets[0].retweets, tweets[0].favorites, tweets[0].mentions, tweets[0].hashtags, tweets[0].geo)
@@ -93,9 +96,11 @@ def get_tweets(place, date_of_earthq_millisec, max_tweets=10):
     return return_tweets
 
 
+
 import os
 
 working_dir = os.path.dirname(os.path.realpath(__file__))
+'''
 list_files = []
 obj = {}
 for subdir, dirs, files in os.walk(working_dir + "/../UsgsData"):
@@ -117,3 +122,43 @@ for file in list_files:
     output_file = working_dir + "/../Tweets/Tweets_" + out[0] + ".json"
     read_earthquake_json(file, output_file)
     print "Earthquake file: ["+file+"] finished and output file here: ["+  output_file+ "]"
+'''
+# file = working_dir + "/../UsgsData/earthquakes_world_2008_mag>=5_count=1965.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2008_mag>=5_count=1965.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2009_mag>=5_count=2075.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2009_mag>=5_count=2075.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2010_mag>=5_count=2395.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2010_mag>=5_count=2395.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2011_mag>=5_count=2692.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2011_mag>=5_count=2692.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2012_mag>=5_count=1680.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2012_mag>=5_count=1680.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2013_mag>=5_count=1596.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2013_mag>=5_count=1596.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2014_mag>=5_count=1729.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2014_mag>=5_count=1729.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2015_mag>=5_count=1558.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2015_mag>=5_count=1558.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2016_mag>=5_count=1696.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2016_mag>=5_count=1696.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2017_mag>=5_count=1560.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2017_mag>=5_count=1560.json"
+
+# file = working_dir + "/../UsgsData/earthquakes_world_2018_mag>=5_count=337.json"
+# output_file = working_dir + "/../Tweets/Tweets_earthquakes_world_2018_mag>=5_count=337.json"
+
+file = working_dir + "/../UsgsData/earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+output_file = working_dir + "/../Tweets/Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json"
+
+
+read_earthquake_json(file, output_file)
+print "Earthquake file: ["+file+"] finished and output file here: ["+  output_file+ "]"

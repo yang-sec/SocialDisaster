@@ -83,10 +83,22 @@ filterDate = function filterDate_(){
     //Get the dates and timestamps:
     var month = document.getElementById("month").value - 1;
     var year = document.getElementById("year").value;
-    var firstDay = new Date(year, month, 1);
-    var firstDayTs = firstDay.getTime();
-    var lastDay = new Date(year, month + 1, 0);
-    var lastDayTs = lastDay.getTime();
+    var firstDay;
+    var firstDayTs;
+    var lastDay;
+    var lastDayTs;
+
+    if (month == -1){
+        firstDay = new Date(year, 0, 1);
+        lastDay = new Date(year+1, 0, 0);
+    }
+    else{
+        firstDay = new Date(year, month, 1);
+        lastDay = new Date(year, month + 1, 0); 
+    }
+
+    firstDayTs = firstDay.getTime();
+    lastDayTs = lastDay.getTime();
     //alert("DEBUG: lastDayTS: " + lastDayTs);
     
     //Search in the earthquake FeatureGroup:
@@ -169,8 +181,9 @@ function createLayers(featureGroup, quakePoints, filterOn, beginTs, endTs){
 }
 
 var data = $.ajax({
-  url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
+  // url: "static/js/data/Evaluated_Tweets_earthquakes_world_2018_mag>=5_count=337.json",
   // url: "static/js/data/Evaluated_Tweets_earthquakes_conterminousUS_2008-2018_mag>=4_count=1147.json",
+  url: "static/js/data/Evaluated_Tweets_earthquakes_merged_2008-2018_count=20470.json",
 
   dataType:'json',
   type: 'GET',
@@ -290,13 +303,15 @@ function irwinHallDistribution(n, m) {
 
 </script>
 
-<h2>Search Earthquakes (Under development)</h2>
+<h2>Search Earthquakes by Month/Year</h2>
 
 <form action="#" method="post" onsubmit="return false;" >
-Month: <input type="number" name="Month" id="month" value="1" min="1" max="12" />
+Month: <input type="number" name="Month" id="month" value="1" min="0" max="12" />
 Year: <input type="number" name="Year" id="year" value="2018" min="2015" max="2018" />
 <input type="submit" value="Search" onclick="filterDate()" />
 </form>
+
+<p>*Note: month=0 means all year</p>
 
 </div>
 

@@ -12,7 +12,7 @@ class Vectorizer:
         self.dir = os.path.dirname(os.path.realpath(__file__))
         self.name = name 
         
-        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.005, max_df=0.995)
+        tfidf = TfidfVectorizerB(stop_words="english", min_df=0.003, max_df=0.997)
         # w2v = W2V
         self.vectorizers = {
             'tfidf': tfidf

@@ -110,13 +110,14 @@ class Classifier:
         'classifier':ActualClassifierObject} 
         """
         iters = 2
+        pct = 0.75
         
         for model in model_list:
             print(('Now testing %s') % (model['name']))
             self.set_classifier(model['classifier'])
             self.set_vectorizer(model['vectorizer_pickle_filename'])
             self.name = model['name']
-            results = self.bootstrap(iters=iters, pct=0.8)
+            results = self.bootstrap(iters=iters, pct=pct)
             model['results'] = results
         
             print("Results for model %s " %(model['name']))
