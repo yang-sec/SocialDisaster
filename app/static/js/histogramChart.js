@@ -1,9 +1,9 @@
 // Source: https://gist.github.com/mbostock/1933560#file-histogram-chart-js
 
 function histogramChart() {
-  var margin = {top: 0, right: 0, bottom: 20, left: 0},
-      width = 900,
-      height = 200;
+  var margin = {top: 40, right: 20, bottom: 40, left: 20};
+  var width = 900;
+  var height = 300;
 
   var histogram = d3.layout.histogram(),
       x = d3.scale.ordinal(),
@@ -13,6 +13,7 @@ function histogramChart() {
   function chart(selection) {
     selection.each(function(data) {
 
+      var formatCount = d3.format(",.0f");
       // Compute the histogram.
       data = histogram(data);
 
@@ -42,13 +43,27 @@ function histogramChart() {
 
       // Update the bars.
       var bar = svg.select(".bars").selectAll(".bar").data(data);
+      bar.enter().append("g")
+      .attr("class","bar")
+      .attr("transform",function(d){return "translate("+x(d.x)+","+y(d.y)+")";});
+      
       bar.enter().append("rect");
       bar.exit().remove();
       bar .attr("width", x.rangeBand())
           .attr("x", function(d) { return x(d.x); })
           .attr("y", function(d) { return y(d.y); })
           .attr("height", function(d) { return y.range()[0] - y(d.y); })
+          //.attr("height", function(d) { return height - y(d.y); })
           .order();
+      
+      bar.enter().append("text").
+      attr("dy",".75em").
+      attr("y", function(d) {return y(d.y) - 20;}).
+      attr("x", function(d) { return x(d.x) + 10; }).
+      attr("text-anchor", "middle").
+      text(function(d){if(d == 0.0 || d==0) return ""; return formatCount(d.y)});
+      
+      bar.select("text").transition().duration(100);
 
       // Update the x-axis.
       g.select(".x.axis")

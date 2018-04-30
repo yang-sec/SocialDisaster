@@ -17,13 +17,21 @@
 
 
 	<style>
+	    
+
+	    h1 {
+	        height: 20px;
+	        margin: 5px !important;
+	        #margin-bottom: 0px;
+	        #margin-top: 0px
+	    }
 		html, body {
 			height: 100%;
 			margin: 0;
 		}
 		#map {
 			width: 100%;
-			height: 600px;
+			height: 400px;
 		}
         * {
             box-sizing: border-box;
@@ -38,13 +46,13 @@
         .column2 {
             float: left;
             width: 70%;
-            padding: 0px;
+            padding: 5px;
         }
 
         .column23 {
             float: left;
             width: 30%;
-            padding: 0px;
+            padding: 5px;
         }
 
         .row:after {
@@ -64,7 +72,7 @@
 	</style>
 </head>
 
-<body>
+<body onload="resize_canvas();">
 
     <h1>SocialDisaster: Earthquake Damage Assessment</h1>
 
@@ -73,6 +81,14 @@
 
 <script>
 //TODO: make this a function and abstract it from the view.
+
+function resize_canvas(){
+    
+    wordCloudCanvas.width = $('#wordCloudDiv').width();
+    wordCloudCanvas.height = $('#wordCloudDiv').height() + 100;
+    dmgAssessmentCanvas.width = $('#dmgAssessmentDiv').width();
+    dmgAssessmentCanvas.height = $('#dmgAssessmentDiv').height() + 100;
+}
 
 var earthquakes = null;
 var dataParse = null;
@@ -236,13 +252,18 @@ function dmgAssess(earthquake_id) {
     var canvas1 = document.getElementById("dmgAssessmentCanvas");
     var canvas2 = document.getElementById("wordCloudCanvas");
     var ctx1=canvas1.getContext("2d");
+    //var ctx2 = canvas1.getContext("2d");
     //ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-    ctx1.font="14px Comic Sans MS";
+    ctx1.font="18px Comic Sans MS";
     ctx1.fillStyle = "red";
     ctx1.textAlign = "center";
     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+    // Magnitude highlight
+    //ctx2.font="32px Comic Sans MS";
+    //ctx2.fillStyle = "blue";
+    //ctx2.textAlign = "center";
 
-    var line_h = 20;
+    var line_h = 24;
     var x = canvas1.width/2;
     var y = 16;
     var tweetsDist = []
@@ -251,17 +272,32 @@ function dmgAssess(earthquake_id) {
     var was_found = false;
     
     var eq_idx = 0;
-
+    var stt = "Cool text";
+    //var textNode = document.createTextNode(stt);
+    //dmgAssessmentDiv.append(textNode);
     for (i=0; i< earthquake_data.length; i++){
         if(earthquake_data[i].id === earthquake_id){
             eq_idx = i;
             var tweets = earthquake_data[i].tweets;
-            var tweets_str = " Predicted magnitude (avg): " + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100 + "." ;
+            var tweets_str = "Predicted magnitude (avg): ";
             ctx1.fillText(tweets_str, x, y );
-            y += line_h;
-            var tweets_str = " Standard deviation: " + Math.round(earthquake_data[i].predicted_magnitude_stddev * 10000) / 10000 + "." ;   
+            y += line_h + 12;
+            ctx1.fillStyle = "blue";
+            ctx1.font="32px Comic Sans MS";
+            var mag_str = "" + Math.round(earthquake_data[i].predicted_magnitude_average * 100) / 100  ;
+            ctx1.fillText(mag_str, x, y);
+            ctx1.fillStyle = "red";
+            ctx1.font="18px Comic Sans MS";
+            y += line_h + 5;
+            var tweets_str = " Standard deviation: "  ;   
             ctx1.fillText(tweets_str, x, y );
-
+            var std_str = "" + Math.round(earthquake_data[i].predicted_magnitude_stddev * 10000) / 10000 ;
+            y += line_h + 10;
+            ctx1.fillStyle = "blue";
+            ctx1.font="32px Comic Sans MS";
+            ctx1.fillText(std_str, x, y );
+            
+            
             for(j = 0 ; j < tweets.length ; j++){
                 var predScore = tweets[j].predicted_magnitude;
                 //tweets_str = 'Tweet id ' + tweets[j].id + ', predicted score: ' + predScore  ;
@@ -318,15 +354,15 @@ Year: <input type="number" name="Year" id="year" value="2018" min="2015" max="20
 
 <div class="column">
 
-<div class="column2">
-<canvas id="wordCloudCanvas" width="560" height="400"
+<div class="column2" id="wordCloudDiv">
+<canvas id="wordCloudCanvas" 
 style="border:1px solid #d3d3d3;">
 Your browser does not support the canvas element.
 </canvas>
 </div>
 
-<div class="column3">
-<canvas id="dmgAssessmentCanvas" width="260" height="100"
+<div class="column23" id="dmgAssessmentDiv">
+<canvas id="dmgAssessmentCanvas" 
 style="border:1px solid #d3d3d3;">
 Your browser does not support the canvas element.
 </canvas>
