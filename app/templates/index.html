@@ -17,7 +17,29 @@
 
 
 	<style>
-	    
+
+
+
+        .zui-table {
+            border: solid 1px #DDEEEE;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font: normal 13px Arial, sans-serif;
+        }
+        .zui-table thead th {
+            background-color: #DDEFEF;
+            border: solid 1px #DDEEEE;
+            color: #336B6B;
+            padding: 10px;
+            text-align: left;
+            text-shadow: 1px 1px 1px #fff;
+        }
+        .zui-table tbody td {
+            border: solid 1px #DDEEEE;
+            color: #333;
+            padding: 10px;
+            text-shadow: 1px 1px 1px #fff;
+        }
 
 	    h1 {
 	        height: 20px;
@@ -31,7 +53,7 @@
 		}
 		#map {
 			width: 100%;
-			height: 400px;
+			height: 700px;
 		}
         * {
             box-sizing: border-box;
@@ -68,6 +90,15 @@
             height: 500px;
         }
 
+        .rowTable {
+
+            height: 300px;
+            overflow: scroll;
+            float: left;
+            position: relative;
+            margin-left: -5px;
+        }
+
 
 	</style>
 </head>
@@ -81,6 +112,83 @@
 
 <script>
 //TODO: make this a function and abstract it from the view.
+
+function tableCreate(earthquake_id) {
+
+    var earthquake_data = data.responseJSON;
+    var tweets = null;
+    for (i=0; i< earthquake_data.length; i++) {
+        if (earthquake_data[i].id === earthquake_id) {
+            tweets = earthquake_data[i].tweets;
+            break;
+        }
+    }
+
+    //body reference
+    var body = tweet_table;
+    while(tweet_table.firstChild){
+        tweet_table.removeChild(tweet_table.firstChild);
+    }
+
+    // create elements <table> and a <tbody>
+    var tbl     = document.createElement("table");
+    var tblHeader = document.createElement("thead");
+    var tblBody = document.createElement("tbody");
+
+    tbl.className = "zui-table";
+
+    // header creation:
+
+    var row = document.createElement("tr");
+    var cell = document.createElement("th");
+    var cellText = document.createTextNode("Tweet");
+    cell.appendChild(cellText);
+    row.appendChild(cell);
+    var cell = document.createElement("th");
+    var cellText = document.createTextNode("Magnitude");
+    cell.appendChild(cellText);
+    row.appendChild(cell);
+    tblHeader.appendChild(row);
+
+
+    // cells creation
+
+    for (var j = 0; j < tweets.length; j++) {
+        // table row creation
+        var row;
+        row = document.createElement("tr");
+
+
+
+
+            // create element <td> and text node
+            //Make text node the contents of <td> element
+            // put <td> at end of the table row
+         var cell = document.createElement("td");
+            var cellText = document.createTextNode(tweets[j].text);
+
+            cell.appendChild(cellText);
+            row.appendChild(cell);
+            cell = document.createElement("td");
+            cellText = document.createTextNode(tweets[j].predicted_magnitude.toFixed(2));
+
+            cell.appendChild(cellText);
+            row.appendChild(cell);
+
+
+        //row added to end of table body
+        tblBody.appendChild(row);
+    }
+
+    // append the <tbody> inside the <table>
+    tbl.appendChild(tblHeader);
+    tbl.appendChild(tblBody);
+
+    // put <table> in the <body>
+    body.appendChild(tbl);
+    // tbl border attribute to
+    tbl.setAttribute("border", "2");
+}
 
 function resize_canvas(){
     
@@ -246,6 +354,7 @@ var data = $.ajax({
     }).addTo(map);
 
     filterDate();
+
 });
 
 function dmgAssess(earthquake_id) {
@@ -266,9 +375,9 @@ function dmgAssess(earthquake_id) {
     var line_h = 24;
     var x = canvas1.width/2;
     var y = 16;
-    var tweetsDist = []
+    var tweetsDist = [];
     //ctx1.fillText("Hello World " + earthquake_id + " " + data + " " + dataParse, canvas1.width/2, canvas1.height/2);
-    var earthquake_data = data.responseJSON
+    var earthquake_data = data.responseJSON;
     var was_found = false;
     
     var eq_idx = 0;
@@ -278,6 +387,16 @@ function dmgAssess(earthquake_id) {
     for (i=0; i< earthquake_data.length; i++){
         if(earthquake_data[i].id === earthquake_id){
             eq_idx = i;
+
+
+            ctx1.fillText("Actual magnitude:", x, y );
+            y += line_h + 12;
+            ctx1.fillStyle = "blue";
+            ctx1.font="32px Comic Sans MS";
+            ctx1.fillText("" + earthquake_data[i].magnitude  , x, y);
+            ctx1.fillStyle = "red";
+            ctx1.font="18px Comic Sans MS";
+            y += line_h + 5;
             var tweets = earthquake_data[i].tweets;
             var tweets_str = "Predicted magnitude (avg): ";
             ctx1.fillText(tweets_str, x, y );
@@ -318,6 +437,9 @@ function dmgAssess(earthquake_id) {
     // Generate word cloud
     var list = earthquake_data[eq_idx].master_vocab;
     WordCloud(canvas2, { list: list } );
+
+    //Tweets table:
+    tableCreate(earthquake_id);
 }
 
 function toDateTime(secs) {
@@ -370,6 +492,7 @@ Your browser does not support the canvas element.
 
 
 <div class="row" id="histogram"></div>
+    <div class="rowTable" id="tweet_table" name="tweet_table" ></div>
 
 
 </div>
